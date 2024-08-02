@@ -1,0 +1,15 @@
+# Exclure les dossiers de configuration de l'IDE
+.idea/
+
+# Exclure les fichiers compilés Python
+__pycache__/
+*.py[cod]
+
+# Exclure les fichiers de logs
+*.log
+
+# Exclure les environnements virtuels
+venv/
+.env/
+env/
+
