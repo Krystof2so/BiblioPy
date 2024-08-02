@@ -5,9 +5,12 @@
 - Comprendre et bien définir les exigences du projet. 
 - Définir les concepts (patterns) et outils (Bibliothèques Python, GitHub, base de données, etc.)
 - Répondre aux besoins des utilisateurs finaux (qu'est-ce qui sera nécessaire ? Quels utilisateurs ? Bibliothécaire, emprunteur, etc.)
+- Décrire les scénarios d'utilisation typiques pour chaque fonctionnalité (Exemples):
+    - Ajouter un livre : le Bibliothécaire se connecte pour ajouter un livre à la collection, le système demande les informations requises, le Bibliothécaire saisit les informations, le système vérifie la validité des informations, le système ajoute le livre à la db. Exceptions à prévoir : ISBN existant, informations manquantes ou non valides.
+    - Emprunter un livre : un Utilisateur se connecte pour emprunter un livre, le système demande n°ISBN du livre (ou autres informations), le système vérifie la validité des informations, s'il est empruntable (disponible) et validité de l'utilisateur, le système enregistre l'emprunt. Exceptions : livre non disponible, informations et utilisateur non valides. 
 - Lister les fonctionnalités principales et secondaires : 
     - Gestion des livres :
-    Ajouter un livre (titre, auteur, ISBN (doit être unique), livre papier ou numérique), supprimer un livre (par l'ISBN, vérifier existence livre), mise à jour des informations sur un livre (Vérification des donnés pour qu'elles soient valides).
+    Ajouter un livre (titre, auteur, ISBN (doit être unique), livre papier ou numérique), supprimer un livre (par l'ISBN, vérifier existence livre), mise à jour des informations sur un livre (Vérification des donnés pour qu'elles soient valides), formatage des informations/données.
     - Gestion des utilisateurs : Ajouter un utilisateur (Nom unique), supprimer un utilisateur (si existant).
     - Gestion des emprunts et retours : Emprunter livre (nom emprunteur + ISBN, utilisateur valide, livre présent), retour livre (Nom emprunteur + ISBN)
     - Statistiques : Nombre total de livres, nombre de livres empruntés, nombre total d'utilisateurs, livres les plus empruntés, etc.
@@ -16,26 +19,83 @@
 - Modélisation du projet (classes, méthodes, interactions).
 
 ### 1.2. Conception des classes
+Diagramme UML ? Chaque classe doit représenter une entité ou une responsabilité spécifique.
 #### Classe Livre :
-- Attributs : titre, auteur, isbn, type
-- Méthodes : __init__(), __str__(), update()
+- Attributs : titre (type *str*), auteur (type *str*), isbn (formatage spéficique de type *str*), type (type *str*)
+- Méthodes : 
+    - __init__() : Initilise nouveau livre avec les informations renseignées
+    - __str__() : Représentation du livre sous forme de chaîne de caractères
+    - update() : Mise à jour des informations du livre
 #### Classes dérivées LivrePapier et LivreNumerique :
 - Héritent de Livre
 - Attributs supplémentaires pour LivrePapier et LivreNumerique (s'il y a lieu)
 #### Classe Utilisateur :
-- Attributs : nom
-- Méthodes : __init__(), __str__()
-#### Classe Bibliotheque 
-- *Singleton*, pour un accès aux ressources partagées (?)
-- Attributs : livres, utilisateurs, emprunts
+- Attributs : nom (type *str*)
+- Méthodes : 
+    - __init__() : Initialise un nouvel utilisateur
+    - __str__() : Représentation de l'utilisateur sous forme de chaîne de caractères 
+#### Classe Bibliotheque :
+- Classe responsable de la gestion de l'ensemble des livres et des utilisateurs
+- *Singleton*, pour un accès aux ressources partagées - [design pattern *singleton*](https://refactoring.guru/fr/design-patterns/singleton)
+- Attributs : 
+    - livres : dictionnaire dont la clé est le numéro ISBN
+    - utilisateurs : dictionnaire dont la clé est le nom
+    - emprunts : dictionnaire dont la clé est le numéro isbn et la valeur l'utilisateur
 - Méthodes : ajouter_livre(), supprimer_livre(), mettre_a_jour_livre(), ajouter_utilisateur(), supprimer_utilisateur(), emprunter_livre(), retourner_livre(), rechercher_livre(), lister_livres(), generer_statistiques()
 
 ### 1.3. Définir les relations entre les classes
-- La classe Bibliotheque contient des collections de Livre et Utilisateur.
-- Les interactions entre Utilisateur et Livre passent par la classe Bibliotheque.
+Diagramme UML :
+           
+           +----------------------+
+           |        Livre         |
+           +----------------------+
+           | - titre: str         |
+           | - auteur: str        |
+           | - isbn: str          |
+           | - type: str          |
+           +----------------------+
+           | + __init__(...)      |
+           | + __str__(): str     |
+           | + update(...)        |
+           +----------------------+
+                     ^
+                     |
+        +------------+------------+
+        |                         |
++------------------+    +-------------------+
+|   LivrePapier    |    |   LivreNumerique  |
++------------------+    +-------------------+
+| + __init__(...)  |    | + __init__(...)   |
++------------------+    +-------------------+
 
-### 1.4. Mettre en place le design pattern Singleton pour Bibliotheque
-- Assurer qu'il n'y a qu'une seule instance de la classe Bibliotheque dans l'application.
+           +----------------------+
+           |     Utilisateur      |
+           +----------------------+
+           | - nom: str           |
+           +----------------------+
+           | + __init__(...)      |
+           | + __str__(): str     |
+           +----------------------+
+
+           +----------------------+
+           |    Bibliotheque      |
+           +----------------------+
+           | - livres: dict       |
+           | - utilisateurs: dict |
+           | - emprunts: dict     |
+           +----------------------+
+           | + __new__(): cls     |
+           | + ajouter_livre(...) |
+           | + supprimer_livre(...)|
+           | + mettre_a_jour_livre(...)|
+           | + ajouter_utilisateur(...)|
+           | + supprimer_utilisateur(...)|
+           | + emprunter_livre(...)|
+           | + retourner_livre(...)|
+           | + rechercher_livre(...)|
+           | + lister_livres(...)  |
+           | + generer_statistiques()|
+           +----------------------+
 
 ## Phase 2 : Implémentation des Fonctionnalités de Base
 ### 2.1. Implémenter la gestion des livres
